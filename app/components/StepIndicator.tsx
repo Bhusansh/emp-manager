@@ -15,14 +15,14 @@ const stepIcons = [
 
 export default function StepIndicator({ currentStep, steps }: StepIndicatorProps) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 40 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 40, width: '100%', maxWidth: 440, margin: '0 auto 40px' }}>
       {steps.map((label, index) => {
         const isCompleted = index < currentStep;
         const isActive = index === currentStep;
         const isLast = index === steps.length - 1;
 
         return (
-          <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
+          <div key={label} style={{ display: 'flex', alignItems: 'center', flex: isLast ? 'none' : 1 }}>
             {/* Step circle + label */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
               <div
@@ -63,12 +63,13 @@ export default function StepIndicator({ currentStep, steps }: StepIndicatorProps
             {!isLast && (
               <div
                 style={{
-                  width: 80,
+                  flex: 1,
                   height: 2,
                   background: isCompleted ? '#16a34a' : '#e5e5e3',
                   marginBottom: 24,
                   marginLeft: 8,
                   marginRight: 8,
+                  minWidth: 10,
                   transition: 'background 0.3s ease',
                 }}
               />

@@ -18,6 +18,7 @@ import {
   updateEmployeeStatus,
   deleteEmployee,
 } from '../actions/employees';
+import * as XLSX from 'xlsx';
 
 interface Employee {
   id: string;
@@ -49,6 +50,8 @@ export default function DashboardClient({
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [exportAlert, setExportAlert] = useState<string | null>(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
 
   // Filter employees
   const filteredEmployees = employees.filter((emp) => {
@@ -75,14 +78,69 @@ export default function DashboardClient({
     setIsLoading(null);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this employee?')) return;
+  function requestDelete(id: string) {
+    setEmployeeToDelete(id);
+  }
+
+  async function confirmDelete() {
+    if (!employeeToDelete) return;
+    const id = employeeToDelete;
     setIsLoading(id);
     const result = await deleteEmployee(id);
     if (result.success) {
       setEmployees((prev) => prev.filter((e) => e.id !== id));
     }
+    setEmployeeToDelete(null);
     setIsLoading(null);
+  }
+
+  function handleExport() {
+    if (filteredEmployees.length === 0) {
+      const statusLabel = statusFilter === 'all' ? 'all statuses' : statusFilter;
+      setExportAlert(`No data found for ${statusLabel} to export.`);
+      return;
+    }
+
+    const exportData = filteredEmployees.map(emp => ({
+      'Emp Code': emp.emp_code,
+      'Name': emp.emp_name,
+      'Father Name': emp.emp_father_name,
+      'DOB': emp.dob ? new Date(emp.dob).toLocaleDateString('en-IN') : '',
+      'Gender': emp.gender === 'M' ? 'Male' : emp.gender === 'F' ? 'Female' : emp.gender,
+      'Mobile No': emp.mobile_no,
+      'Aadhaar No': emp.aadhaar_no,
+      'PAN No': emp.pan_no || '',
+      'Qualification': emp.qualification || '',
+      'Company': emp.company_name || '',
+      'E.Code (Alt)': emp.e_code || '',
+      'DOJ': emp.doj ? new Date(emp.doj).toLocaleDateString('en-IN') : '',
+      'Department': emp.department_name,
+      'Pay Day': emp.pay_day || '',
+      'ESIC No': emp.esic_no || '',
+      'UAN No': emp.uan_no || '',
+      'EPFO Joining': emp.epfo_joining || '',
+      'Nominee Name': emp.nominee_name || '',
+      'Relation': emp.relation_name || '',
+      'Present Address': emp.present_address,
+      'Permanent Address': emp.permanent_address || '',
+      'District': emp.district_name || '',
+      'State': emp.state_name || '',
+      'PIN Code': emp.pin_code || '',
+      'IFSC Code': emp.ifsc_code || '',
+      'Account No': emp.account_no || '',
+      'Narration': emp.narration || '',
+      'Status': emp.status
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+    
+    // Auto-adjust column widths roughly based on header length
+    const colWidths = Object.keys(exportData[0]).map(key => ({ wch: Math.max(12, key.length + 2) }));
+    worksheet['!cols'] = colWidths;
+
+    XLSX.writeFile(workbook, `Employees_${statusFilter}_${new Date().toISOString().split('T')[0]}.xlsx`);
   }
 
   const statCards = [
@@ -113,6 +171,7 @@ export default function DashboardClient({
     <div className="animate-fade-in">
       {/* Page header */}
       <div
+        className="dashboard-header"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -276,6 +335,35 @@ export default function DashboardClient({
               <option value="pending">Pending</option>
               <option value="rejected">Rejected</option>
             </select>
+
+            {/* Export button */}
+            <button
+              onClick={handleExport}
+              style={{
+                backgroundColor: '#f97316',
+                color: 'white',
+                border: 'none',
+                height: 38,
+                padding: '0 16px',
+                borderRadius: '8px',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'background-color 0.15s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ea580c'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f97316'}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export
+            </button>
           </div>
         </div>
 
@@ -406,7 +494,7 @@ export default function DashboardClient({
                             className="btn btn-ghost"
                             title="Delete"
                             disabled={isLoading === emp.id}
-                            onClick={() => handleDelete(emp.id)}
+                            onClick={() => requestDelete(emp.id)}
                             style={{ color: '#dc2626' }}
                           >
                             <IconTrash size={16} />
@@ -472,6 +560,79 @@ export default function DashboardClient({
         </div>
       </div>
 
+
+      {/* Export Alert Modal */}
+      {exportAlert && (
+        <div className="modal-overlay" style={{ zIndex: 1000 }}>
+          <div className="modal-content animate-fade-in" style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: '#fffbeb',
+                color: '#f59e0b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#1a1a1a' }}>Export Unavailable</h3>
+            <p style={{ fontSize: 14, color: '#6b6b6b', marginBottom: 24 }}>{exportAlert}</p>
+            <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setExportAlert(null)}>Got it</button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {employeeToDelete && (
+        <div className="modal-overlay" style={{ zIndex: 1000 }}>
+          <div className="modal-content animate-fade-in" style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: '#fef2f2',
+                color: '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}
+            >
+              <IconTrash size={32} />
+            </div>
+            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#1a1a1a' }}>Delete Employee?</h3>
+            <p style={{ fontSize: 14, color: '#6b6b6b', marginBottom: 24 }}>This action cannot be undone. All details for this employee will be permanently removed.</p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button 
+                className="btn btn-secondary" 
+                style={{ flex: 1, justifyContent: 'center' }} 
+                onClick={() => setEmployeeToDelete(null)} 
+                disabled={isLoading === employeeToDelete}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn" 
+                style={{ flex: 1, justifyContent: 'center', backgroundColor: '#dc2626', color: 'white', border: 'none' }} 
+                onClick={confirmDelete} 
+                disabled={isLoading === employeeToDelete}
+              >
+                {isLoading === employeeToDelete ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import { logoutAction } from '../actions/auth';
 import { IconBriefcase, IconLogOut, IconUser } from '../components/Icons';
 
@@ -8,6 +9,19 @@ interface DashboardNavProps {
 }
 
 export default function DashboardNav({ adminName }: DashboardNavProps) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <header
       style={{
@@ -51,9 +65,13 @@ export default function DashboardNav({ adminName }: DashboardNavProps) {
         </div>
 
         {/* Right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* Admin info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }} ref={dropdownRef}>
+          {/* Avatar / Admin info */}
+          <div 
+            className="nav-user-info" 
+            style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
             <div
               style={{
                 width: 32,
@@ -64,17 +82,18 @@ export default function DashboardNav({ adminName }: DashboardNavProps) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#2563eb',
+                flexShrink: 0
               }}
             >
               <IconUser size={16} />
             </div>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#1a1a1a' }}>
+            <span className="desktop-only" style={{ fontSize: 14, fontWeight: 500, color: '#1a1a1a', whiteSpace: 'nowrap' }}>
               {adminName}
             </span>
           </div>
 
-          {/* Logout */}
-          <form action={logoutAction}>
+          {/* Logout (Desktop Only) */}
+          <form action={logoutAction} className="desktop-only">
             <button
               type="submit"
               className="btn btn-ghost"
@@ -90,6 +109,50 @@ export default function DashboardNav({ adminName }: DashboardNavProps) {
               <span>Logout</span>
             </button>
           </form>
+
+          {/* Mobile Dropdown Menu */}
+          <div className="mobile-only">
+            {dropdownOpen && (
+              <div
+                className="animate-fade-in card"
+                style={{
+                  position: 'absolute',
+                  top: 60,
+                  right: 24,
+                  width: 200,
+                  padding: '8px 0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  zIndex: 50,
+                  overflow: 'hidden',
+                  background: '#ffffff'
+                }}
+              >
+                <div style={{ padding: '8px 16px', borderBottom: '1px solid #e5e5e3', marginBottom: 8 }}>
+                  <p style={{ fontSize: 11, color: '#9b9b9b', margin: '0 0 2px', textTransform: 'uppercase', fontWeight: 600 }}>Signed in as</p>
+                  <p style={{ fontSize: 14, color: '#1a1a1a', margin: 0, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {adminName}
+                  </p>
+                </div>
+                <div style={{ padding: '0 8px' }}>
+                  <form action={logoutAction}>
+                    <button
+                      type="submit"
+                      className="btn btn-ghost"
+                      style={{
+                        width: '100%',
+                        justifyContent: 'flex-start',
+                        color: '#dc2626',
+                        padding: '10px 8px'
+                      }}
+                    >
+                      <IconLogOut size={16} />
+                      Logout
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

@@ -5,6 +5,17 @@ import { verifyToken } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 
+/** Uppercase and trim a text value, return null if empty */
+function clean(val: string | null | undefined): string | null {
+  if (!val) return null;
+  return val.toUpperCase().trim() || null;
+}
+
+/** Uppercase and trim, but never return null (for required fields) */
+function cleanReq(val: string | null | undefined): string {
+  return (val || '').toUpperCase().trim();
+}
+
 async function getSession() {
   const cookieStore = await cookies();
   const token = cookieStore.get('session')?.value;
@@ -19,32 +30,33 @@ export async function createEmployee(data: Record<string, string | null>) {
 
   const { error } = await supabase.from('employees').insert({
     admin_id: session.id,
-    emp_code: data.emp_code,
-    e_code: data.e_code || null,
-    emp_name: data.emp_name,
-    emp_father_name: data.emp_father_name,
-    esic_no: data.esic_no || null,
-    uan_no: data.uan_no || null,
-    mobile_no: data.mobile_no,
-    aadhaar_no: data.aadhaar_no,
-    epfo_joining: data.epfo_joining || null,
-    pan_no: data.pan_no || null,
+    company_name: cleanReq(data.company_name),
+    emp_code: cleanReq(data.emp_code),
+    e_code: clean(data.e_code),
+    emp_name: cleanReq(data.emp_name),
+    emp_father_name: cleanReq(data.emp_father_name),
+    esic_no: clean(data.esic_no),
+    uan_no: clean(data.uan_no),
+    mobile_no: cleanReq(data.mobile_no),
+    aadhaar_no: cleanReq(data.aadhaar_no),
+    epfo_joining: clean(data.epfo_joining),
+    pan_no: cleanReq(data.pan_no),
     dob: data.dob,
     doj: data.doj,
-    gender: data.gender,
+    gender: cleanReq(data.gender),
     pay_day: data.pay_day ? parseInt(data.pay_day) : null,
-    department_name: data.department_name,
-    nominee_name: data.nominee_name || null,
-    relation_name: data.relation_name || null,
-    qualification: data.qualification || null,
-    present_address: data.present_address,
-    permanent_address: data.permanent_address || null,
-    district_name: data.district_name || null,
-    state_name: data.state_name || null,
-    pin_code: data.pin_code || null,
-    ifsc_code: data.ifsc_code || null,
-    account_no: data.account_no || null,
-    narration: data.narration || null,
+    department_name: cleanReq(data.department_name),
+    nominee_name: clean(data.nominee_name),
+    relation_name: clean(data.relation_name),
+    qualification: cleanReq(data.qualification),
+    present_address: cleanReq(data.present_address),
+    permanent_address: clean(data.permanent_address),
+    district_name: clean(data.district_name),
+    state_name: clean(data.state_name),
+    pin_code: clean(data.pin_code),
+    ifsc_code: cleanReq(data.ifsc_code),
+    account_no: (data.account_no || '').trim() || null,
+    narration: clean(data.narration),
     status: 'pending',
   });
 
@@ -65,32 +77,33 @@ export async function updateEmployee(
   const { error } = await supabase
     .from('employees')
     .update({
-      emp_code: data.emp_code,
-      e_code: data.e_code || null,
-      emp_name: data.emp_name,
-      emp_father_name: data.emp_father_name,
-      esic_no: data.esic_no || null,
-      uan_no: data.uan_no || null,
-      mobile_no: data.mobile_no,
-      aadhaar_no: data.aadhaar_no,
-      epfo_joining: data.epfo_joining || null,
-      pan_no: data.pan_no || null,
+      company_name: cleanReq(data.company_name),
+      emp_code: cleanReq(data.emp_code),
+      e_code: clean(data.e_code),
+      emp_name: cleanReq(data.emp_name),
+      emp_father_name: cleanReq(data.emp_father_name),
+      esic_no: clean(data.esic_no),
+      uan_no: clean(data.uan_no),
+      mobile_no: cleanReq(data.mobile_no),
+      aadhaar_no: cleanReq(data.aadhaar_no),
+      epfo_joining: clean(data.epfo_joining),
+      pan_no: cleanReq(data.pan_no),
       dob: data.dob,
       doj: data.doj,
-      gender: data.gender,
+      gender: cleanReq(data.gender),
       pay_day: data.pay_day ? parseInt(data.pay_day) : null,
-      department_name: data.department_name,
-      nominee_name: data.nominee_name || null,
-      relation_name: data.relation_name || null,
-      qualification: data.qualification || null,
-      present_address: data.present_address,
-      permanent_address: data.permanent_address || null,
-      district_name: data.district_name || null,
-      state_name: data.state_name || null,
-      pin_code: data.pin_code || null,
-      ifsc_code: data.ifsc_code || null,
-      account_no: data.account_no || null,
-      narration: data.narration || null,
+      department_name: cleanReq(data.department_name),
+      nominee_name: clean(data.nominee_name),
+      relation_name: clean(data.relation_name),
+      qualification: cleanReq(data.qualification),
+      present_address: cleanReq(data.present_address),
+      permanent_address: clean(data.permanent_address),
+      district_name: clean(data.district_name),
+      state_name: clean(data.state_name),
+      pin_code: clean(data.pin_code),
+      ifsc_code: cleanReq(data.ifsc_code),
+      account_no: (data.account_no || '').trim() || null,
+      narration: clean(data.narration),
     })
     .eq('id', id)
     .eq('admin_id', session.id);

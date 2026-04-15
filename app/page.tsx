@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { loginAction } from './actions/auth';
-import { IconLock, IconUser, IconLoader, IconBriefcase } from './components/Icons';
+import { IconLockg, IconUserg, IconLoader, IconBriefcase } from './components/Icons';
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(loginAction, null);
@@ -97,7 +97,7 @@ export default function LoginPage() {
                   color: '#9b9b9b',
                 }}
               >
-                <IconUser size={16} />
+                <IconUserg size={16} />
               </div>
               <input
                 className="input-field"
@@ -126,7 +126,7 @@ export default function LoginPage() {
                   color: '#9b9b9b',
                 }}
               >
-                <IconLock size={16} />
+                <IconLockg size={16} />
               </div>
               <input
                 className="input-field"

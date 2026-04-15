@@ -7,6 +7,7 @@
 CREATE TABLE IF NOT EXISTS employees (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   admin_id TEXT NOT NULL,
+  company_name TEXT NOT NULL DEFAULT '',
   emp_code TEXT NOT NULL,
   e_code TEXT,
   emp_name TEXT NOT NULL,

@@ -320,3 +320,159 @@ select.input-field {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+/* ─── DateInput ─── */
+.date-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ─── ComboBox ─── */
+.combobox-wrapper {
+  position: relative;
+}
+
+.combobox-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.combobox-custom .input-field {
+  padding-right: 40px;
+}
+
+.combobox-back-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.combobox-back-btn:hover {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* ─── Field Validation Feedback ─── */
+.field-error {
+  font-size: 12px;
+  color: var(--color-danger);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.field-warning {
+  font-size: 12px;
+  color: #b45309;
+  background: var(--color-warning-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+.input-field-error {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.input-field-error:focus {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+
+/* ─── Field Hint ─── */
+.field-hint {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* ─── ALL CAPS input styling ─── */
+.input-field.input-uppercase {
+  text-transform: uppercase;
+}
+
+/* ─── Mobile Responsive ─── */
+@media (max-width: 768px) {
+  .card {
+    border-radius: var(--radius-sm) !important;
+    padding: 20px !important;
+    margin: 0 -4px !important;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .form-nav {
+    flex-direction: row !important;
+    gap: 12px;
+  }
+
+  .form-nav .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .step-indicator {
+    gap: 4px !important;
+  }
+
+  .step-indicator .step-label {
+    font-size: 10px !important;
+  }
+
+  .step-indicator .step-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 12px !important;
+  }
+
+  .data-table {
+    font-size: 13px;
+  }
+
+  .data-table thead th,
+  .data-table tbody td {
+    padding: 10px 8px;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  .dashboard-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
